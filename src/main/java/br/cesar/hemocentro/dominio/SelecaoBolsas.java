@@ -26,11 +26,16 @@ public class SelecaoBolsas {
                 .thenComparing(BolsaDisponivel::validade)
                 .thenComparing(BolsaDisponivel::id);
 
-        return estoque.stream()
+        List<BolsaDisponivel> aptas = estoque.stream()
                 .filter(b -> b.tipo().podeDoarPara(receptor))
                 .filter(b -> !ValidadeBolsa.vencida(b.validade(), hoje))
                 .sorted(prioridade)
-                .limit(quantidade)
                 .toList();
+
+        // Entrega parcial esconde a falta de sangue de quem pediu; melhor recusar e avisar.
+        if (aptas.size() < quantidade) {
+            throw new EstoqueInsuficienteException(receptor, quantidade, aptas.size());
+        }
+        return aptas.subList(0, quantidade);
     }
 }
