@@ -13,7 +13,7 @@ Java 21 · Spring Boot 3.5 · PostgreSQL 17 · Docker Compose · JUnit 5 · Test
 Pré-requisito: Docker. Do zero, com um comando:
 
 ```bash
-git clone <url-do-repositorio> && cd hemocentro
+git clone https://github.com/egs3-coder/SO.git && cd SO
 cp .env.example .env          # ajuste a senha
 docker compose up -d --build
 docker compose ps             # api e db devem aparecer como "healthy"
@@ -65,12 +65,12 @@ Story map e tarefas: [`docs/story-map.md`](docs/story-map.md). Histórico red �
 
 1. Criar o repositório no GitHub e enviar o código (`git push -u origin main`).
 2. Rodar a esteira uma vez (push na main) para publicar a imagem; em *Packages* no GitHub, tornar o pacote **público** (ou cadastrar credencial do GHCR no Render).
-3. No Render: *New → Blueprint*, apontar para o repositório (usa o `render.yaml`; troque `OWNER/REPO` antes). Isso cria a API e o Postgres.
+3. No Render: *New → Blueprint*, apontar para o repositório (usa o `render.yaml`). Isso cria a API e o Postgres.
 4. No Render, na API: *Settings → Deploy Hook* → copiar a URL.
 5. No GitHub, *Settings → Secrets and variables → Actions*:
    - Secret `RENDER_DEPLOY_HOOK_URL` = URL do deploy hook
    - Variable `APP_URL` = URL pública da API (ex.: `https://hemocentro-api.onrender.com`)
-6. Proteger a main: `./scripts/proteger-main.sh dono/repositorio` (ou em *Settings → Branches*: PR obrigatório + check `testes`).
+6. Proteger a main: `./scripts/proteger-main.sh egs3-coder/SO` (ou em *Settings → Branches*: PR obrigatório + check `testes`).
 
 URL no ar: _a preencher_
 

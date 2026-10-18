@@ -1,11 +1,11 @@
 # Blueprint do Render: cria a API (a partir da imagem no GHCR) e o PostgreSQL gerenciado.
-# Troque OWNER/REPO pelo caminho do repositório no GitHub, em minúsculas.
+# Imagem publicada pela esteira do repositório egs3-coder/SO (GHCR exige minúsculas).
 services:
   - type: web
     name: hemocentro-api
     runtime: image
     image:
-      url: ghcr.io/OWNER/REPO:latest
+      url: ghcr.io/egs3-coder/so:latest
     plan: free
     region: oregon
     healthCheckPath: /actuator/health
