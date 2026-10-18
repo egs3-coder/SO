@@ -1,0 +1,28 @@
+server:
+  # O Render injeta PORT; localmente usa 8080
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: hemocentro
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:hemocentro}
+    username: ${DB_USER:hemocentro}
+    password: ${DB_PASSWORD:}
+  jpa:
+    hibernate:
+      # O schema é responsabilidade do Flyway; o Hibernate só confere
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      probes:
+        enabled: true
