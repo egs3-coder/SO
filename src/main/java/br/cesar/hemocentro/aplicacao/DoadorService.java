@@ -45,7 +45,7 @@ public class DoadorService {
         return triar(buscar(id));
     }
 
-    ResultadoTriagem triar(Doador doador) {
+    public ResultadoTriagem triar(Doador doador) {
         return triagem.avaliar(doador.perfil(), doacoes.datasDeColetaDoDoador(doador.getId()), LocalDate.now(clock));
     }
 }

@@ -2,6 +2,8 @@ package br.cesar.hemocentro.aceitacao;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.assertj.core.api.InstanceOfAssertFactories;
+
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.HashMap;
@@ -12,6 +14,7 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -79,7 +82,7 @@ public class HemocentroSteps {
                 "tipoSanguineo", tipo);
 
         var resposta = http.exchange("/doadores", HttpMethod.POST,
-                new org.springframework.http.HttpEntity<>(corpo), JSON);
+                new HttpEntity<>(corpo), JSON);
 
         assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         idPorNome.put(nome, ((Number) resposta.getBody().get("id")).longValue());
@@ -120,7 +123,7 @@ public class HemocentroSteps {
     public void solicitaBolsas(int quantidade, String receptor) {
         Map<String, Object> corpo = Map.of("tipoReceptor", receptor, "quantidade", quantidade);
         ultimaResposta = http.exchange("/transfusoes", HttpMethod.POST,
-                new org.springframework.http.HttpEntity<>(corpo), JSON);
+                new HttpEntity<>(corpo), JSON);
     }
 
     // ---------- Então ----------
@@ -135,7 +138,7 @@ public class HemocentroSteps {
     public void doadorInapto(String motivo) {
         assertThat(ultimaResposta.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(ultimaResposta.getBody().get("apto")).isEqualTo(false);
-        assertThat((List<?>) ultimaResposta.getBody().get("motivos")).contains(motivo);
+        assertThat(ultimaResposta.getBody().get("motivos")).asInstanceOf(InstanceOfAssertFactories.LIST).contains(motivo);
     }
 
     @Então("a doação é registrada com bolsa {string} válida por {int} dias")
@@ -149,7 +152,7 @@ public class HemocentroSteps {
     @Então("a doação é recusada com o motivo {string}")
     public void doacaoRecusada(String motivo) {
         assertThat(ultimaResposta.getStatusCode()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY);
-        assertThat((List<?>) ultimaResposta.getBody().get("motivos")).contains(motivo);
+        assertThat(ultimaResposta.getBody().get("motivos")).asInstanceOf(InstanceOfAssertFactories.LIST).contains(motivo);
     }
 
     @Então("o estoque tem {int} bolsa(s) {string} disponível(is)")
