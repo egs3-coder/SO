@@ -1,0 +1,117 @@
+name: CI/CD
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      versao:
+        description: "Rollback: SHA do commit (tag da imagem) que deve voltar ao ar"
+        required: true
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  # nunca dois deploys ao mesmo tempo; PRs cancelam execuções antigas do mesmo PR
+  group: ${{ github.workflow }}-${{ github.event_name == 'pull_request' && github.ref || 'producao' }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  # 1) BUILD + TESTES: unitários, integração (Postgres via Testcontainers) e aceitação (Cucumber).
+  #    É o check obrigatório da main protegida: vermelho aqui barra o merge e o deploy.
+  testes:
+    if: github.event_name != 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Build e testes (mvn verify)
+        run: mvn -B verify
+
+      - name: Publicar relatórios de teste
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relatorios-de-teste
+          path: |
+            target/surefire-reports/
+            target/failsafe-reports/
+            target/cucumber-report.html
+
+  # 2) IMAGEM: só em push na main (ou seja, depois do merge) e só se os testes passaram.
+  imagem:
+    needs: testes
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    outputs:
+      imagem: ${{ steps.nome.outputs.imagem }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Nome da imagem (GHCR exige minúsculas)
+        id: nome
+        run: echo "imagem=ghcr.io/${GITHUB_REPOSITORY,,}" >> "$GITHUB_OUTPUT"
+
+      - uses: docker/setup-buildx-action@v3
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build multi-stage e push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          build-args: APP_VERSION=${{ github.sha }}
+          tags: |
+            ${{ steps.nome.outputs.imagem }}:${{ github.sha }}
+            ${{ steps.nome.outputs.imagem }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 3) DEPLOY: Render puxa a imagem recém-publicada; o job só fica verde quando a versão nova responde.
+  deploy:
+    needs: imagem
+    runs-on: ubuntu-latest
+    environment:
+      name: producao
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Deploy no Render e smoke test
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: ./scripts/deploy-render.sh "${{ needs.imagem.outputs.imagem }}:${{ github.sha }}" "${{ github.sha }}"
+
+  # ROLLBACK manual: Actions > CI/CD > Run workflow > informar o SHA de uma versão anterior.
+  rollback:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    environment:
+      name: producao
+      url: ${{ vars.APP_URL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Republicar versão anterior
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          APP_URL: ${{ vars.APP_URL }}
+        run: |
+          IMAGEM="ghcr.io/${GITHUB_REPOSITORY,,}:${{ inputs.versao }}"
+          ./scripts/deploy-render.sh "$IMAGEM" "${{ inputs.versao }}"

@@ -1,0 +1,41 @@
+# Blueprint do Render: cria a API (a partir da imagem no GHCR) e o PostgreSQL gerenciado.
+# Troque OWNER/REPO pelo caminho do repositório no GitHub, em minúsculas.
+services:
+  - type: web
+    name: hemocentro-api
+    runtime: image
+    image:
+      url: ghcr.io/OWNER/REPO:latest
+    plan: free
+    region: oregon
+    healthCheckPath: /actuator/health
+    # quem decide quando publicar é a esteira (deploy hook), não o Render
+    autoDeploy: false
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: hemocentro-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: hemocentro-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: hemocentro-db
+          property: database
+      - key: DB_USER
+        fromDatabase:
+          name: hemocentro-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: hemocentro-db
+          property: password
+
+databases:
+  - name: hemocentro-db
+    plan: free
+    region: oregon
+    databaseName: hemocentro
+    user: hemocentro
