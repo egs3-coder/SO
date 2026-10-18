@@ -138,4 +138,44 @@ class TriagemDoadorTest {
                     "Peso mínimo para doação é 50 kg");
         }
     }
+
+    @Nested
+    @DisplayName("T1.3 - intervalo desde a última doação")
+    class Intervalo {
+
+        @Test
+        void homemCom59DiasInapto() {
+            var resultado = avaliar(perfil(30, Sexo.MASCULINO, 70), HOJE.minusDays(59));
+
+            assertThat(resultado.apto()).isFalse();
+            assertThat(resultado.motivos()).containsExactly("Intervalo mínimo entre doações é de 60 dias");
+        }
+
+        @Test
+        void homemCom60DiasApto() {
+            assertThat(avaliar(perfil(30, Sexo.MASCULINO, 70), HOJE.minusDays(60)).apto()).isTrue();
+        }
+
+        @Test
+        void mulherCom89DiasInapta() {
+            var resultado = avaliar(perfil(30, Sexo.FEMININO, 60), HOJE.minusDays(89));
+
+            assertThat(resultado.apto()).isFalse();
+            assertThat(resultado.motivos()).containsExactly("Intervalo mínimo entre doações é de 90 dias");
+        }
+
+        @Test
+        void mulherCom90DiasApta() {
+            assertThat(avaliar(perfil(30, Sexo.FEMININO, 60), HOJE.minusDays(90)).apto()).isTrue();
+        }
+
+        @Test
+        @DisplayName("considera a doação mais recente, mesmo com histórico fora de ordem")
+        void usaDoacaoMaisRecente() {
+            var resultado = avaliar(perfil(30, Sexo.MASCULINO, 70),
+                    HOJE.minusDays(300), HOJE.minusDays(10), HOJE.minusDays(200));
+
+            assertThat(resultado.apto()).isFalse();
+        }
+    }
 }
