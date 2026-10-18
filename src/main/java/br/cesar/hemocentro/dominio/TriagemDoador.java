@@ -2,6 +2,7 @@ package br.cesar.hemocentro.dominio;
 
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,7 +22,17 @@ public class TriagemDoador {
         List<String> motivos = new ArrayList<>();
         avaliarIdade(perfil, doacoesAnteriores, hoje, motivos);
         avaliarPeso(perfil, motivos);
+        avaliarIntervalo(perfil, doacoesAnteriores, hoje, motivos);
         return ResultadoTriagem.de(motivos);
+    }
+
+    private void avaliarIntervalo(PerfilDoador perfil, List<LocalDate> doacoesAnteriores, LocalDate hoje,
+                                  List<String> motivos) {
+        int intervalo = perfil.sexo().intervaloMinimoDias();
+        doacoesAnteriores.stream()
+                .max(LocalDate::compareTo)
+                .filter(ultima -> ChronoUnit.DAYS.between(ultima, hoje) < intervalo)
+                .ifPresent(ultima -> motivos.add("Intervalo mínimo entre doações é de " + intervalo + " dias"));
     }
 
     private void avaliarPeso(PerfilDoador perfil, List<String> motivos) {
