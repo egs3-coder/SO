@@ -23,7 +23,18 @@ public class TriagemDoador {
         avaliarIdade(perfil, doacoesAnteriores, hoje, motivos);
         avaliarPeso(perfil, motivos);
         avaliarIntervalo(perfil, doacoesAnteriores, hoje, motivos);
+        avaliarLimiteAnual(perfil, doacoesAnteriores, hoje, motivos);
         return ResultadoTriagem.de(motivos);
+    }
+
+    private void avaliarLimiteAnual(PerfilDoador perfil, List<LocalDate> doacoesAnteriores, LocalDate hoje,
+                                    List<String> motivos) {
+        LocalDate inicioJanela = hoje.minusYears(1);
+        long doacoesNaJanela = doacoesAnteriores.stream().filter(d -> d.isAfter(inicioJanela)).count();
+        int limite = perfil.sexo().maximoDoacoesEm12Meses();
+        if (doacoesNaJanela >= limite) {
+            motivos.add("Limite de " + limite + " doações em 12 meses atingido");
+        }
     }
 
     private void avaliarIntervalo(PerfilDoador perfil, List<LocalDate> doacoesAnteriores, LocalDate hoje,
