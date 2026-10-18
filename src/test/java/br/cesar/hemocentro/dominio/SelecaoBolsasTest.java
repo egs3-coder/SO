@@ -80,6 +80,21 @@ class SelecaoBolsasTest {
     }
 
     @Test
+    @DisplayName("T3.4: sem bolsas compatíveis suficientes, recusa em vez de entregar parcial")
+    void estoqueInsuficiente() {
+        var estoque = List.of(bolsa(1, O_NEGATIVO, 10), bolsa(2, O_POSITIVO, 10), bolsa(3, O_NEGATIVO, -2));
+
+        assertThatThrownBy(() -> selecao.selecionar(O_NEGATIVO, 2, estoque, HOJE))
+                .isInstanceOf(EstoqueInsuficienteException.class)
+                .hasMessageContaining("O-")
+                .satisfies(e -> {
+                    var ex = (EstoqueInsuficienteException) e;
+                    assertThat(ex.getSolicitadas()).isEqualTo(2);
+                    assertThat(ex.getDisponiveis()).isEqualTo(1);
+                });
+    }
+
+    @Test
     @DisplayName("quantidade precisa ser ao menos 1")
     void quantidadeInvalida() {
         assertThatThrownBy(() -> selecao.selecionar(A_POSITIVO, 0, List.of(), HOJE))
