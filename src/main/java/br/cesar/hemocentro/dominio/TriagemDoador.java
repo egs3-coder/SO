@@ -15,11 +15,19 @@ public class TriagemDoador {
     static final int MAIORIDADE = 18;
     static final int IDADE_MAXIMA = 69;
     static final int IDADE_MAXIMA_PRIMEIRA_DOACAO = 60;
+    static final double PESO_MINIMO_KG = 50.0;
 
     public ResultadoTriagem avaliar(PerfilDoador perfil, List<LocalDate> doacoesAnteriores, LocalDate hoje) {
         List<String> motivos = new ArrayList<>();
         avaliarIdade(perfil, doacoesAnteriores, hoje, motivos);
+        avaliarPeso(perfil, motivos);
         return ResultadoTriagem.de(motivos);
+    }
+
+    private void avaliarPeso(PerfilDoador perfil, List<String> motivos) {
+        if (perfil.pesoKg() < PESO_MINIMO_KG) {
+            motivos.add("Peso mínimo para doação é 50 kg");
+        }
     }
 
     private void avaliarIdade(PerfilDoador perfil, List<LocalDate> doacoesAnteriores, LocalDate hoje,
