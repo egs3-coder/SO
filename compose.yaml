@@ -1,0 +1,47 @@
+name: hemocentro
+
+services:
+  db:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: ${DB_NAME:-hemocentro}
+      POSTGRES_USER: ${DB_USER:-hemocentro}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no arquivo .env (cp .env.example .env)}
+    volumes:
+      # volume nomeado: os dados sobrevivem a "docker compose down" (só somem com "down -v")
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    restart: unless-stopped
+    # sem "ports": o banco só é acessível pela rede interna do Compose, não pela máquina host
+
+  api:
+    build:
+      context: .
+    image: hemocentro-api:local
+    environment:
+      # "db" é o nome do serviço acima: o DNS da rede do Compose resolve para o container do banco
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-hemocentro}
+      DB_USER: ${DB_USER:-hemocentro}
+      DB_PASSWORD: ${DB_PASSWORD:?Defina DB_PASSWORD no arquivo .env (cp .env.example .env)}
+      APP_VERSION: local
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q UP"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  pgdata:
