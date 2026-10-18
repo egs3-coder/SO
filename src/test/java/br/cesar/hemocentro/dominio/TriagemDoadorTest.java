@@ -109,4 +109,33 @@ class TriagemDoadorTest {
             assertThat(avaliar(perfil(60, Sexo.FEMININO, 65)).apto()).isTrue();
         }
     }
+
+    @Nested
+    @DisplayName("T1.2 - peso")
+    class Peso {
+
+        @ParameterizedTest(name = "{0} kg -> inapto")
+        @ValueSource(doubles = {30, 49.9})
+        void abaixoDe50Inapto(double peso) {
+            var resultado = avaliar(perfil(30, Sexo.FEMININO, peso));
+
+            assertThat(resultado.apto()).isFalse();
+            assertThat(resultado.motivos()).containsExactly("Peso mínimo para doação é 50 kg");
+        }
+
+        @Test
+        void exatamente50Apto() {
+            assertThat(avaliar(perfil(30, Sexo.FEMININO, 50)).apto()).isTrue();
+        }
+
+        @Test
+        @DisplayName("acumula motivos: idade e peso ao mesmo tempo")
+        void acumulaMotivos() {
+            var resultado = avaliar(perfil(15, Sexo.FEMININO, 45));
+
+            assertThat(resultado.motivos()).containsExactlyInAnyOrder(
+                    "Idade mínima para doação é 16 anos",
+                    "Peso mínimo para doação é 50 kg");
+        }
+    }
 }
