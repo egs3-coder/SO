@@ -178,4 +178,40 @@ class TriagemDoadorTest {
             assertThat(resultado.apto()).isFalse();
         }
     }
+
+    @Nested
+    @DisplayName("T1.4 - limite de doações em 12 meses")
+    class LimiteAnual {
+
+        @Test
+        void homemCom4DoacoesNoAnoInapto() {
+            var resultado = avaliar(perfil(30, Sexo.MASCULINO, 70),
+                    HOJE.minusDays(61), HOJE.minusDays(122), HOJE.minusDays(183), HOJE.minusDays(244));
+
+            assertThat(resultado.apto()).isFalse();
+            assertThat(resultado.motivos()).containsExactly("Limite de 4 doações em 12 meses atingido");
+        }
+
+        @Test
+        void homemCom3DoacoesNoAnoApto() {
+            assertThat(avaliar(perfil(30, Sexo.MASCULINO, 70),
+                    HOJE.minusDays(61), HOJE.minusDays(122), HOJE.minusDays(183)).apto()).isTrue();
+        }
+
+        @Test
+        void mulherCom3DoacoesNoAnoInapta() {
+            var resultado = avaliar(perfil(30, Sexo.FEMININO, 60),
+                    HOJE.minusDays(91), HOJE.minusDays(182), HOJE.minusDays(273));
+
+            assertThat(resultado.apto()).isFalse();
+            assertThat(resultado.motivos()).containsExactly("Limite de 3 doações em 12 meses atingido");
+        }
+
+        @Test
+        @DisplayName("doação de mais de 12 meses atrás não conta para o limite")
+        void doacaoAntigaNaoConta() {
+            assertThat(avaliar(perfil(30, Sexo.FEMININO, 60),
+                    HOJE.minusDays(91), HOJE.minusDays(182), HOJE.minusDays(366)).apto()).isTrue();
+        }
+    }
 }
