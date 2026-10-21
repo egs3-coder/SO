@@ -1,5 +1,7 @@
 package br.cesar.hemocentro.api;
 
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import br.cesar.hemocentro.api.Dtos.BolsaResponse;
 import br.cesar.hemocentro.api.Dtos.TransfusaoRequest;
 import br.cesar.hemocentro.api.Dtos.TransfusaoResponse;
 import br.cesar.hemocentro.aplicacao.EstoqueService;
+import br.cesar.hemocentro.dominio.AlertaEstoque;
 import br.cesar.hemocentro.dominio.TipoSanguineo;
 import jakarta.validation.Valid;
 
@@ -25,13 +28,21 @@ public class EstoqueController {
         this.estoqueService = estoqueService;
     }
 
-    /** Bolsas utilizáveis por tipo sanguíneo. */
+    /** Bolsas utilizaveis por tipo sanguineo. */
     @GetMapping("/estoque")
     public Map<String, Integer> estoque() {
         return estoqueService.resumo();
     }
 
-    /** H3 — atende solicitação de transfusão; 409 se o estoque compatível não bastar. */
+    /** T4.1 - tipos sanguineos abaixo do estoque minimo de seguranca. */
+    @GetMapping("/estoque/criticos")
+    public List<String> criticos() {
+        Map<TipoSanguineo, Integer> porTipo = new EnumMap<>(TipoSanguineo.class);
+        estoqueService.resumo().forEach((simbolo, qtd) -> porTipo.put(TipoSanguineo.deSimbolo(simbolo), qtd));
+        return new AlertaEstoque().tiposCriticos(porTipo).stream().map(TipoSanguineo::simbolo).toList();
+    }
+
+    /** H3 - atende solicitacao de transfusao; 409 se o estoque compativel nao bastar. */
     @PostMapping("/transfusoes")
     @ResponseStatus(HttpStatus.CREATED)
     public TransfusaoResponse transfusao(@Valid @RequestBody TransfusaoRequest request) {
