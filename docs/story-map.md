@@ -46,3 +46,22 @@ Regras baseadas na Portaria de Consolidação MS nº 5/2017 (Anexo IV), simplifi
 | T3.3 | Prioriza o mesmo tipo (isogrupo) e depois a bolsa que vence primeiro (FEFO) | `SelecaoBolsasTest` |
 | T3.4 | Estoque insuficiente → recusa (não entrega parcial) | `SelecaoBolsasTest` |
 | T3.5 | Endpoint `POST /transfusoes` marca as bolsas como utilizadas | `transfusao.feature`, `BolsaRepositoryIT` |
+
+## Release 2 — uma tarefa por integrante
+
+Cada tarefa é uma regra pequena, com teste unitário escrito **antes** do código e entregue por PR com a conta de quem fez:
+1º commit `test: ... - red` (o check `testes` do PR fica vermelho) → 2º commit `feat: ... - green` → aprovação de um colega → merge → deploy.
+
+Os valores clínicos seguem a Portaria de Consolidação MS nº 5/2017 (Anexo IV), simplificada para o PI.
+
+| Tarefa | Responsável | Regra | Teste a escrever primeiro |
+|---|---|---|---|
+| T4.1 | Ewerton | **Alerta de estoque crítico**: tipos O (O-, O+) ficam críticos com menos de 5 bolsas utilizáveis; os demais, com menos de 3. Endpoint `GET /estoque/criticos` | `AlertaEstoqueTest` |
+| T1.6 | Pablo | **Tatuagem recente**: doador que fez tatuagem ou maquiagem definitiva há menos de 12 meses está inapto | `TriagemDoadorTest.Tatuagem` |
+| T1.7 | João | **Hemoglobina mínima**: homem ≥ 13,0 g/dL; mulher ≥ 12,5 g/dL | `TriagemDoadorTest.Hemoglobina` |
+| T4.2 | Lucas | **Descartar bolsas vencidas**: bolsas `DISPONIVEL` com validade anterior a hoje passam para `DESCARTADA` | `DescarteBolsasTest` |
+| T2.5 | Saulo | **CPF válido**: além dos 11 dígitos, os 2 dígitos verificadores precisam bater; CPFs com todos os dígitos iguais são inválidos | `CpfTest` |
+| T1.8 | Thiago | **Frequência cardíaca**: entre 50 e 100 batimentos por minuto | `TriagemDoadorTest.FrequenciaCardiaca` |
+| T1.9 | Eloi | **Pressão arterial**: sistólica ≤ 180 mmHg e diastólica ≤ 100 mmHg | `TriagemDoadorTest.PressaoArterial` |
+
+Dica para T1.6 a T1.9: o dado novo entra no `PerfilDoador` (ou num registro de triagem do dia), e a regra entra como mais um `avaliar...` no `TriagemDoador`, que já acumula todos os motivos de inaptidão.
