@@ -5,7 +5,7 @@ import java.time.LocalDate;
 /** Validade do concentrado de hemácias coletado com anticoagulante CPDA-1. */
 public final class ValidadeBolsa {
 
-    public static final int DIAS_VALIDADE = 35;
+    public static final int DIAS_VALIDADE = 30;
 
     private ValidadeBolsa() {
     }
