@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hemocentro · Jornada do sangue</title>
+<meta name="description" content="Hemocentro: a jornada do sangue do doador ao paciente — captação, triagem, coleta, armazenamento e distribuição com compatibilidade ABO/Rh.">
+<meta name="theme-color" content="#0b0e17">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%230b0e17'/%3E%3Cpath d='M16 5s-7.5 8.6-7.5 13a7.5 7.5 0 0 0 15 0C23.5 13.6 16 5 16 5Z' fill='%23ff2d55'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --neon: #ff2d55;
+    --neon-2: #ff5c7c;
+    --neon-esc: #c3143c;
+    --base: #0b0e17;
+    --sup-1: #10141f;
+    --sup-2: #151a28;
+    --sup-3: #1b2133;
+    --borda: rgba(255,255,255,.07);
+    --borda-neon: rgba(255,45,85,.32);
+    --texto: #f1f3f8;
+    --texto-2: #b4bccd;
+    --mudo: #7c869c;
+    --ciano: #3dd6ff;
+    --verde: #2fd889;
+    --ambar: #ffb547;
+    --brilho: 0 0 0 1px rgba(255,45,85,.35), 0 0 24px rgba(255,45,85,.25);
+    --raio: 18px;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; scroll-padding-top: 84px; }
+  body {
+    margin: 0; color: var(--texto); font: 15px/1.6 Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    background:
+      radial-gradient(900px 500px at 50% -120px, rgba(255,45,85,.16), transparent 70%),
+      linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px) 0 0 / 44px 44px,
+      linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px) 0 0 / 44px 44px,
+      var(--base);
+    background-attachment: fixed;
+  }
+  h1, h2, h3, h4 { font-family: Sora, Inter, sans-serif; margin: 0; letter-spacing: -.02em; }
+  a { color: var(--neon-2); }
+  button { font: inherit; }
+  .mono { font-family: "JetBrains Mono", ui-monospace, monospace; font-size: .86em; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+  .rotulo { font-family: "JetBrains Mono", monospace; font-size: 11.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--neon); }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  /* ---------- topo ---------- */
+  header.topo { position: sticky; top: 0; z-index: 30; background: rgba(11,14,23,.78); backdrop-filter: blur(14px); border-bottom: 1px solid var(--borda); }
+  .topo .wrap { display: flex; align-items: center; gap: 18px; height: 68px; }
+  .marca { display: flex; align-items: center; gap: 11px; color: var(--texto); text-decoration: none; font-family: Sora, sans-serif; font-weight: 800; font-size: 19px; letter-spacing: -.03em; }
+  .marca .selo { width: 36px; height: 36px; border-radius: 11px; display: grid; place-items: center; background: var(--sup-2); box-shadow: var(--brilho); }
+  .marca .selo svg { width: 18px; height: 18px; }
+  .marca span b { color: var(--neon); }
+  nav.links { display: flex; gap: 2px; margin-left: auto; }
+  nav.links a { color: var(--texto-2); text-decoration: none; font-weight: 500; font-size: 14px; padding: 8px 12px; border-radius: 10px; }
+  nav.links a:hover { color: #fff; background: var(--sup-2); }
+  .chip-status { display: inline-flex; align-items: center; gap: 8px; font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--texto-2); background: var(--sup-1); border: 1px solid var(--borda); padding: 6px 12px; border-radius: 999px; white-space: nowrap; }
+  .chip-status i { width: 7px; height: 7px; border-radius: 50%; background: var(--mudo); }
+  .chip-status.up i { background: var(--verde); box-shadow: 0 0 10px var(--verde); }
+  .chip-status.down i { background: var(--neon); box-shadow: 0 0 10px var(--neon); }
+
+  /* ---------- abertura ---------- */
+  .abertura { padding: 72px 0 30px; text-align: center; }
+  .abertura .rotulo { display: inline-block; padding: 6px 14px; border: 1px solid var(--borda-neon); border-radius: 999px; background: rgba(255,45,85,.07); }
+  .abertura h1 { font-size: clamp(36px, 6vw, 68px); font-weight: 800; line-height: 1.04; margin: 22px auto 18px; max-width: 900px; }
+  .abertura h1 em { font-style: normal; color: var(--neon); text-shadow: 0 0 30px rgba(255,45,85,.45); }
+  .abertura p { color: var(--texto-2); font-size: 17px; max-width: 640px; margin: 0 auto; }
+
+  /* ---------- jornada (backbone do story map) ---------- */
+  .jornada { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; margin-top: 46px; }
+  .jornada::before { content: ""; position: absolute; left: 10%; right: 10%; top: 49px; height: 2px; background: linear-gradient(90deg, transparent, var(--neon) 15%, var(--neon) 85%, transparent); opacity: .45; }
+  .etapa { position: relative; background: linear-gradient(180deg, var(--sup-2), var(--sup-1)); border: 1px solid var(--borda); border-radius: var(--raio); padding: 22px 16px 18px; text-align: center; cursor: pointer; color: var(--texto); transition: border-color .2s, box-shadow .2s, transform .2s; }
+  .etapa:hover { transform: translateY(-3px); border-color: var(--borda-neon); }
+  .etapa[aria-selected="true"] { border-color: var(--neon); box-shadow: 0 0 0 1px var(--neon), 0 0 34px rgba(255,45,85,.28); }
+  .etapa .icone { width: 56px; height: 56px; margin: 0 auto 14px; border-radius: 16px; display: grid; place-items: center; background: var(--base); border: 1px solid var(--borda-neon); color: var(--neon); position: relative; z-index: 1; }
+  .etapa[aria-selected="true"] .icone { box-shadow: var(--brilho); }
+  .etapa .icone svg { width: 24px; height: 24px; }
+  .etapa .n { font-family: "JetBrains Mono", monospace; font-size: 11px; color: var(--mudo); letter-spacing: .1em; }
+  .etapa h3 { font-size: 17px; margin: 4px 0 4px; }
+  .etapa p { margin: 0; font-size: 12.5px; color: var(--texto-2); line-height: 1.45; }
+  .etapa .dado { display: inline-flex; align-items: center; gap: 6px; margin-top: 12px; font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--texto-2); background: var(--base); border: 1px solid var(--borda); border-radius: 999px; padding: 3px 10px; }
+  .etapa .dado i { width: 6px; height: 6px; border-radius: 50%; background: var(--ciano); }
+  .etapa .dado.alerta i { background: var(--neon); box-shadow: 0 0 8px var(--neon); }
+  .etapa .dado.ok i { background: var(--verde); }
+
+  /* ---------- bancada de operação ---------- */
+  section.bloco { padding: 56px 0; }
+  .titulo-bloco { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 22px; }
+  .titulo-bloco h2 { font-size: clamp(26px, 3vw, 34px); margin-top: 8px; }
+  .titulo-bloco p { margin: 6px 0 0; color: var(--texto-2); max-width: 620px; }
+  .bancada { background: linear-gradient(180deg, rgba(21,26,40,.92), rgba(16,20,31,.92)); border: 1px solid var(--borda); border-radius: 22px; overflow: hidden; }
+  .bancada-cab { display: flex; align-items: center; gap: 14px; padding: 18px 24px; border-bottom: 1px solid var(--borda); flex-wrap: wrap; }
+  .bancada-cab h3 { font-size: 20px; }
+  .bancada-cab .hist { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--neon); border: 1px solid var(--borda-neon); border-radius: 8px; padding: 3px 8px; }
+  .bancada-cab .nav-et { margin-left: auto; display: flex; gap: 8px; }
+  .quadro { display: none; padding: 26px 24px 28px; }
+  .quadro.ativo { display: block; animation: surge .25s ease; }
+  @keyframes surge { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  .duas { display: grid; grid-template-columns: 1.25fr 1fr; gap: 22px; }
+  .painel { background: var(--base); border: 1px solid var(--borda); border-radius: 16px; padding: 22px; min-width: 0; }
+  .painel h4 { font-size: 16px; margin-bottom: 4px; }
+  .painel .sub { color: var(--mudo); font-size: 13px; margin: 0 0 18px; }
+  .rota { font-family: "JetBrains Mono", monospace; font-size: 11.5px; color: var(--ciano); }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 12px; padding: 11px 18px; font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; border: 1px solid var(--borda); background: var(--sup-2); color: var(--texto); transition: border-color .15s, box-shadow .15s, background .15s; }
+  .btn:hover { border-color: var(--borda-neon); }
+  .btn.neon { background: var(--neon); border-color: var(--neon); color: #fff; box-shadow: 0 0 22px rgba(255,45,85,.35); }
+  .btn.neon:hover { background: var(--neon-2); }
+  .btn.peq { padding: 6px 11px; font-size: 12.5px; border-radius: 9px; }
+  .btn.quad { width: 40px; height: 40px; padding: 0; }
+  .btn[disabled] { opacity: .5; cursor: wait; }
+
+  .campos { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .campo { display: flex; flex-direction: column; gap: 6px; }
+  .campo.cheio { grid-column: 1 / -1; }
+  label { font-size: 12.5px; font-weight: 600; color: var(--texto-2); }
+  input, select { font: 14.5px Inter, sans-serif; padding: 11px 12px; border-radius: 11px; border: 1px solid var(--borda); background: var(--sup-1); color: var(--texto); width: 100%; }
+  input::placeholder { color: #566079; }
+  input:focus, select:focus { outline: none; border-color: var(--neon); box-shadow: 0 0 0 3px rgba(255,45,85,.18); }
+  input[type="date"] { color-scheme: dark; }
+  .check { flex-direction: row; align-items: center; gap: 10px; }
+  .check input { width: 18px; height: 18px; accent-color: var(--neon); }
+  .acoes { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; }
+
+  .resultado { display: none; margin-top: 18px; border-radius: 14px; padding: 16px 18px; font-size: 14px; }
+  .resultado.mostrar { display: block; }
+  .resultado.sucesso { background: rgba(47,216,137,.08); border: 1px solid rgba(47,216,137,.35); }
+  .resultado.erro { background: rgba(255,45,85,.08); border: 1px solid var(--borda-neon); }
+  .resultado strong.t { display: block; font-family: Sora, sans-serif; font-size: 16px; margin-bottom: 4px; }
+  .resultado.sucesso strong.t { color: var(--verde); }
+  .resultado.erro strong.t { color: var(--neon-2); }
+  .resultado ul { margin: 8px 0 0; padding-left: 20px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chip { font-family: "JetBrains Mono", monospace; font-size: 12px; border: 1px solid var(--borda); background: var(--sup-1); border-radius: 999px; padding: 4px 10px; }
+
+  .tipo-tag { display: inline-block; font-family: Sora, sans-serif; font-weight: 700; font-size: 12.5px; color: var(--neon); border: 1px solid var(--borda-neon); background: rgba(255,45,85,.08); border-radius: 8px; padding: 1px 8px; }
+  table.tabela { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .tabela th { text-align: left; font-family: "JetBrains Mono", monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--mudo); font-weight: 600; padding: 8px 8px; border-bottom: 1px solid var(--borda); }
+  .tabela td { padding: 11px 8px; border-bottom: 1px solid var(--borda); }
+  .tabela tr:last-child td { border-bottom: 0; }
+  .rolagem { overflow-x: auto; }
+  .vazio { color: var(--mudo); font-size: 14px; margin: 0; }
+
+  .lista-regras { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+  .lista-regras li { display: flex; gap: 12px; align-items: flex-start; font-size: 13.5px; color: var(--texto-2); }
+  .lista-regras .cod { font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600; color: var(--neon); border: 1px solid var(--borda-neon); border-radius: 6px; padding: 2px 7px; white-space: nowrap; margin-top: 1px; }
+  .nota { font-size: 12.5px; color: var(--mudo); margin: 16px 0 10px; }
+
+  /* estoque */
+  .tipos { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+  .tipo { background: var(--base); border: 1px solid var(--borda); border-radius: 16px; padding: 16px; position: relative; overflow: hidden; }
+  .tipo .g { font-family: Sora, sans-serif; font-weight: 800; font-size: 22px; }
+  .tipo .q { font-family: Sora, sans-serif; font-weight: 700; font-size: 34px; line-height: 1; margin-top: 10px; }
+  .tipo .s { font-size: 12px; color: var(--mudo); margin: 4px 0 12px; }
+  .tipo .selo { position: absolute; top: 14px; right: 14px; font-family: "JetBrains Mono", monospace; font-size: 10.5px; padding: 3px 8px; border-radius: 999px; color: var(--verde); border: 1px solid rgba(47,216,137,.35); }
+  .tipo.critico { border-color: var(--borda-neon); box-shadow: inset 0 0 40px rgba(255,45,85,.08); }
+  .tipo.critico .selo { color: var(--neon); border-color: var(--borda-neon); }
+  .trilho { height: 6px; background: var(--sup-3); border-radius: 99px; overflow: hidden; }
+  .trilho i { display: block; height: 100%; border-radius: 99px; background: var(--verde); transition: width .5s; }
+  .tipo.critico .trilho i { background: var(--neon); box-shadow: 0 0 10px var(--neon); }
+  .linha-info { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; color: var(--texto-2); font-size: 14px; }
+  .placar { display: flex; gap: 22px; flex-wrap: wrap; }
+  .placar b { font-family: Sora, sans-serif; font-size: 22px; color: #fff; display: block; line-height: 1.1; }
+  .placar span { font-size: 12px; color: var(--mudo); }
+
+  table.matriz { border-collapse: collapse; font-size: 12.5px; margin: 0 auto; }
+  .matriz th, .matriz td { width: 42px; height: 32px; text-align: center; border: 1px solid var(--borda); }
+  .matriz th { background: var(--sup-2); color: var(--texto-2); font-weight: 700; }
+  .matriz td.sim { background: rgba(255,45,85,.14); color: var(--neon); font-weight: 800; }
+  .matriz td.nao { color: #3a4256; }
+  .matriz td.foco { outline: 2px solid var(--ciano); outline-offset: -2px; }
+
+  .destaque-num { font-family: Sora, sans-serif; font-weight: 800; font-size: 48px; line-height: 1; color: #fff; text-shadow: 0 0 26px rgba(255,45,85,.4); }
+
+  /* regras / histórias */
+  .historias { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .historia { background: linear-gradient(180deg, var(--sup-2), var(--sup-1)); border: 1px solid var(--borda); border-radius: var(--raio); padding: 22px; }
+  .historia .rotulo { font-size: 11px; }
+  .historia h3 { font-size: 18px; margin: 8px 0 6px; }
+  .historia blockquote { margin: 0 0 14px; color: var(--texto-2); font-size: 13.5px; border-left: 2px solid var(--neon); padding-left: 12px; }
+  .release2 { margin-top: 14px; background: var(--sup-1); border: 1px dashed var(--borda-neon); border-radius: var(--raio); padding: 20px 22px; }
+  .release2 .grade { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
+  .release2 .item { background: var(--base); border: 1px solid var(--borda); border-radius: 12px; padding: 12px; font-size: 13px; color: var(--texto-2); }
+  .release2 .item b { display: block; color: var(--texto); font-size: 13.5px; margin-top: 4px; }
+
+  /* esteira */
+  .esteira { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .passo { background: var(--sup-1); border: 1px solid var(--borda); border-radius: var(--raio); padding: 20px; position: relative; }
+  .passo .num { font-family: "JetBrains Mono", monospace; font-size: 12px; color: var(--neon); }
+  .passo h3 { font-size: 17px; margin: 6px 0 6px; }
+  .passo p { margin: 0; font-size: 13px; color: var(--texto-2); }
+  .passo:not(:last-child)::after { content: "→"; position: absolute; right: -13px; top: 50%; transform: translateY(-50%); color: var(--neon); font-weight: 700; z-index: 1; }
+  .links-esteira { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+
+  /* equipe */
+  .equipe { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; }
+  .pessoa { text-align: center; background: var(--sup-1); border: 1px solid var(--borda); border-radius: 16px; padding: 18px 8px 14px; }
+  .pessoa:hover { border-color: var(--borda-neon); }
+  .pessoa img { width: 66px; height: 66px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto 10px; border: 2px solid var(--borda-neon); background: var(--sup-3); }
+  .pessoa b { display: block; font-size: 13px; line-height: 1.25; }
+  .pessoa span { display: block; font-size: 11.5px; color: var(--mudo); margin-top: 3px; }
+  .pessoa .mono { color: var(--neon); margin-top: 6px; }
+  .pessoa a { font-size: 11.5px; color: var(--ciano); }
+
+  footer { border-top: 1px solid var(--borda); padding: 26px 0 40px; color: var(--mudo); font-size: 13px; }
+  footer .wrap { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+  footer .paleta { display: flex; gap: 14px; align-items: center; font-family: "JetBrains Mono", monospace; font-size: 11.5px; }
+  footer .paleta i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; }
+
+  @media (max-width: 1080px) {
+    .jornada { grid-template-columns: repeat(3, 1fr); }
+    .jornada::before { display: none; }
+    .duas, .historias { grid-template-columns: 1fr; }
+    .tipos { grid-template-columns: repeat(2, 1fr); }
+    .release2 .grade { grid-template-columns: repeat(2, 1fr); }
+    .esteira { grid-template-columns: repeat(2, 1fr); }
+    .passo::after { display: none; }
+    .equipe { grid-template-columns: repeat(4, 1fr); }
+    nav.links { display: none; }
+    .chip-status { margin-left: auto; }
+  }
+  @media (max-width: 620px) {
+    .abertura { padding-top: 44px; }
+    .jornada { grid-template-columns: 1fr 1fr; gap: 10px; }
+    .jornada .etapa:last-child { grid-column: 1 / -1; }
+    .etapa { padding: 16px 12px; }
+    .etapa p { display: none; }
+    .campos, .esteira, .release2 .grade { grid-template-columns: 1fr; }
+    .equipe { grid-template-columns: 1fr 1fr; }
+    .quadro { padding: 18px 14px 22px; }
+    .painel { padding: 18px 16px; }
+    .bancada-cab { padding: 16px; }
+    .chip-status .txt-v { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-gota" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5S5 10.4 5 14.8a7 7 0 0 0 14 0C19 10.4 12 2.5 12 2.5Z"/></symbol>
+  <symbol id="i-pessoa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/><path d="M19 4v4M17 6h4"/></symbol>
+  <symbol id="i-estetoscopio" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l2-5 4 10 2-5h6"/></symbol>
+  <symbol id="i-bolsa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5h8v3H8z"/><path d="M6.5 5.5h11v12a3.5 3.5 0 0 1-3.5 3.5h-4a3.5 3.5 0 0 1-3.5-3.5z"/><path d="M12 10v6M9 13h6"/></symbol>
+  <symbol id="i-geladeira" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M9 6v1.5M9 13v3"/></symbol>
+  <symbol id="i-hospital" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="17" height="17" rx="3"/><path d="M12 8v8M8 12h8"/></symbol>
+</svg>
+
+<header class="topo">
+  <div class="wrap">
+    <a class="marca" href="#">
+      <span class="selo"><svg viewBox="0 0 24 24" aria-hidden="true"><use href="#i-gota" style="color:#ff2d55"/></svg></span>
+      <span>Hemo<b>centro</b></span>
+    </a>
+    <nav class="links" aria-label="Seções">
+      <a href="#operacao">Operação</a>
+      <a href="#historias">Regras</a>
+      <a href="#esteira">Esteira</a>
+      <a href="#equipe">Equipe</a>
+    </nav>
+    <span class="chip-status" id="status" title="GET /actuator/health"><i></i><span id="statusTxt">conectando…</span><span class="txt-v">· <a id="versao" class="mono" href="https://github.com/egs3-coder/SO/commits/main" target="_blank" rel="noopener" style="color:inherit">–</a></span></span>
+  </div>
+</header>
+
+<main>
+  <!-- abertura + jornada -->
+  <section class="abertura">
+    <div class="wrap">
+      <span class="rotulo">Projeto Integrador · CESAR School</span>
+      <h1>A jornada do sangue, <em>do doador ao paciente.</em></h1>
+      <p>Cinco etapas, uma regra protegida por teste em cada uma. Escolha uma etapa para operar o sistema ao vivo.</p>
+
+      <div class="jornada" role="tablist" aria-label="Etapas da jornada do sangue" id="jornada">
+        <button class="etapa" role="tab" data-et="captar" aria-selected="true">
+          <div class="icone"><svg><use href="#i-pessoa"/></svg></div>
+          <div class="n">01</div><h3>Captar</h3><p>Cadastrar o doador</p>
+          <span class="dado" id="dCaptar"><i></i>– doadores</span>
+        </button>
+        <button class="etapa" role="tab" data-et="triar" aria-selected="false">
+          <div class="icone"><svg><use href="#i-estetoscopio"/></svg></div>
+          <div class="n">02</div><h3>Triar</h3><p>Verificar se pode doar</p>
+          <span class="dado ok"><i></i>8 regras</span>
+        </button>
+        <button class="etapa" role="tab" data-et="coletar" aria-selected="false">
+          <div class="icone"><svg><use href="#i-bolsa"/></svg></div>
+          <div class="n">03</div><h3>Coletar</h3><p>Registrar a doação</p>
+          <span class="dado" id="dColetar"><i></i>– doações</span>
+        </button>
+        <button class="etapa" role="tab" data-et="armazenar" aria-selected="false">
+          <div class="icone"><svg><use href="#i-geladeira"/></svg></div>
+          <div class="n">04</div><h3>Armazenar</h3><p>Estoque e validade</p>
+          <span class="dado" id="dArmazenar"><i></i>– bolsas</span>
+        </button>
+        <button class="etapa" role="tab" data-et="distribuir" aria-selected="false">
+          <div class="icone"><svg><use href="#i-hospital"/></svg></div>
+          <div class="n">05</div><h3>Distribuir</h3><p>Atender transfusão</p>
+          <span class="dado" id="dDistribuir"><i></i>ABO/Rh</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- bancada de operação -->
+  <section class="bloco" id="operacao" style="padding-top:30px">
+    <div class="wrap">
+      <div class="bancada">
+        <div class="bancada-cab">
+          <span class="rotulo" id="cabNum">Etapa 01</span>
+          <h3 id="cabTitulo">Captar</h3>
+          <span class="hist" id="cabHist">cadastro</span>
+          <div class="nav-et">
+            <button class="btn quad" type="button" id="ant" aria-label="Etapa anterior">‹</button>
+            <button class="btn quad" type="button" id="prox" aria-label="Próxima etapa">›</button>
+          </div>
+        </div>
+
+        <!-- 01 captar -->
+        <div class="quadro ativo" id="q-captar" role="tabpanel">
+          <div class="duas">
+            <form class="painel" id="fCadastro">
+              <span class="rota">POST /doadores</span>
+              <h4>Novo doador</h4>
+              <p class="sub">CPF com 11 dígitos, sem repetir.</p>
+              <div class="campos">
+                <div class="campo cheio"><label for="nome">Nome completo</label><input id="nome" name="nome" required placeholder="Maria Silva"></div>
+                <div class="campo"><label for="cpf">CPF (só números)</label><input id="cpf" name="cpf" required inputmode="numeric" pattern="\d{11}" maxlength="11" placeholder="52998224725"></div>
+                <div class="campo"><label for="nasc">Nascimento</label><input id="nasc" name="dataNascimento" type="date" required></div>
+                <div class="campo"><label for="sexo">Sexo</label><select id="sexo" name="sexo"><option value="FEMININO">Feminino</option><option value="MASCULINO">Masculino</option></select></div>
+                <div class="campo"><label for="peso">Peso (kg)</label><input id="peso" name="pesoKg" type="number" min="1" step="0.1" required placeholder="62.5"></div>
+                <div class="campo"><label for="tipo">Tipo sanguíneo</label><select id="tipo" name="tipoSanguineo" class="sel-tipo"></select></div>
+                <div class="campo check"><input id="consent" name="consentimentoResponsavel" type="checkbox"><label for="consent">Consentimento do responsável (16–17)</label></div>
+              </div>
+              <div class="acoes"><button class="btn neon" type="submit">Cadastrar</button><button class="btn" type="button" id="btnExemplo">Preencher exemplo</button></div>
+              <div class="resultado" role="status"></div>
+            </form>
+            <div class="painel">
+              <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+                <div><span class="rota">GET /api/doadores-recentes</span><h4>Doadores recentes</h4><p class="sub">Siga para a triagem ou para a coleta direto da lista.</p></div>
+                <button class="btn peq" type="button" data-atualizar aria-label="Atualizar">↻</button>
+              </div>
+              <div class="rolagem" id="recentes"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 02 triar -->
+        <div class="quadro" id="q-triar" role="tabpanel">
+          <div class="duas">
+            <form class="painel" id="fTriagem">
+              <span class="rota">GET /doadores/{id}/triagem</span>
+              <h4>Verificar aptidão</h4>
+              <p class="sub">Todos os motivos de inaptidão aparecem de uma vez.</p>
+              <div class="campos"><div class="campo"><label for="idTriagem">ID do doador</label><input id="idTriagem" class="id-doador" type="number" min="1" required></div></div>
+              <div class="acoes"><button class="btn neon" type="submit">Verificar</button></div>
+              <div class="resultado" role="status"></div>
+            </form>
+            <div class="painel">
+              <h4>O que a triagem confere</h4>
+              <p class="sub">Portaria de Consolidação MS nº 5/2017, simplificada.</p>
+              <ul class="lista-regras">
+                <li><span class="cod">T1.1</span>Idade de 16 a 69 anos (16–17 com consentimento; 1ª doação até 60).</li>
+                <li><span class="cod">T1.2</span>Peso mínimo de 50 kg.</li>
+                <li><span class="cod">T1.3</span>Intervalo de 60 dias (homens) ou 90 dias (mulheres).</li>
+                <li><span class="cod">T1.4</span>Até 4 (homens) ou 3 (mulheres) doações em 12 meses.</li>
+              </ul>
+              <p class="nota">Release 2 · regras prontas e testadas, entram na triagem quando o cadastro registrar esses dados:</p>
+              <ul class="lista-regras">
+                <li><span class="cod">T1.6</span>Tatuagem há menos de 12 meses.</li>
+                <li><span class="cod">T1.7</span>Hemoglobina ≥ 13,0 (H) / 12,5 g/dL (M).</li>
+                <li><span class="cod">T1.8</span>Frequência cardíaca de 50 a 100 bpm.</li>
+                <li><span class="cod">T1.9</span>Pressão ≤ 180 × 100 mmHg.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 03 coletar -->
+        <div class="quadro" id="q-coletar" role="tabpanel">
+          <div class="duas">
+            <form class="painel" id="fDoacao">
+              <span class="rota">POST /doadores/{id}/doacoes</span>
+              <h4>Registrar doação</h4>
+              <p class="sub">Só registra se o doador estiver apto (T2.2). A bolsa entra no estoque na hora.</p>
+              <div class="campos"><div class="campo"><label for="idDoacao">ID do doador</label><input id="idDoacao" class="id-doador" type="number" min="1" required></div></div>
+              <div class="acoes"><button class="btn neon" type="submit">Registrar doação</button></div>
+              <div class="resultado" role="status"></div>
+            </form>
+            <div class="painel">
+              <h4>Validade da bolsa</h4>
+              <p class="sub">Concentrado de hemácias em CPDA-1.</p>
+              <div class="destaque-num">35 <span style="font-size:18px;color:var(--texto-2);text-shadow:none">dias</span></div>
+              <ul class="lista-regras" style="margin-top:18px">
+                <li><span class="cod">T2.1</span>Vale até o último dia, inclusive; depois disso, nunca é entregue.</li>
+                <li><span class="cod">T2.3</span>Doação e bolsa gravadas no PostgreSQL.</li>
+                <li><span class="cod">T4.2</span>Bolsas vencidas são descartadas.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- 04 armazenar -->
+        <div class="quadro" id="q-armazenar" role="tabpanel">
+          <div class="linha-info">
+            <div class="placar">
+              <div><b id="pBolsas">–</b><span>bolsas utilizáveis</span></div>
+              <div><b id="pAlertas">–</b><span>tipos em alerta</span></div>
+              <div><b id="pDoacoes">–</b><span>doações registradas</span></div>
+            </div>
+            <button class="btn" type="button" data-atualizar>Atualizar ↻</button>
+          </div>
+          <div class="tipos" id="tipos"></div>
+          <p class="nota" style="margin-bottom:0">Alerta (T4.1): tipos O abaixo de 5 bolsas, demais tipos abaixo de 3 · <span class="rota">GET /estoque · GET /estoque/criticos</span></p>
+        </div>
+
+        <!-- 05 distribuir -->
+        <div class="quadro" id="q-distribuir" role="tabpanel">
+          <div class="duas">
+            <form class="painel" id="fTransfusao">
+              <span class="rota">POST /transfusoes</span>
+              <h4>Atender solicitação</h4>
+              <p class="sub">Mesmo tipo primeiro (isogrupo), depois a bolsa que vence antes (FEFO). Sem estoque suficiente, recusa inteira.</p>
+              <div class="campos">
+                <div class="campo"><label for="receptor">Tipo do receptor</label><select id="receptor" class="sel-tipo"></select></div>
+                <div class="campo"><label for="qtd">Quantidade</label><input id="qtd" type="number" min="1" max="20" value="1" required></div>
+              </div>
+              <div style="margin-top:16px;display:flex;align-items:baseline;gap:10px"><span class="destaque-num" id="compTotal" style="font-size:34px">–</span><span style="color:var(--texto-2);font-size:13px" id="compTxt">bolsas compatíveis em estoque</span></div>
+              <div class="acoes"><button class="btn neon" type="submit">Solicitar bolsas</button></div>
+              <div class="resultado" role="status"></div>
+            </form>
+            <div class="painel">
+              <h4>Compatibilidade de hemácias</h4>
+              <p class="sub">Linha = doador · coluna = receptor (T3.1). A coluna do receptor escolhido fica destacada.</p>
+              <div class="rolagem"><table class="matriz" id="matriz"></table></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- histórias -->
+  <section class="bloco" id="historias">
+    <div class="wrap">
+      <div class="titulo-bloco">
+        <div><span class="rotulo">Story map · Release 1</span><h2>Três histórias, cada regra com um teste</h2><p>O teste foi escrito antes do código; se ele fica vermelho, o pull request não entra.</p></div>
+      </div>
+      <div class="historias">
+        <article class="historia"><span class="rotulo">H1 · Triagem</span><h3>Doador apto ou não</h3><blockquote>Como atendente, quero saber se o doador está apto para não coletar de quem a norma proíbe.</blockquote><ul class="lista-regras"><li><span class="cod">T1.1–T1.4</span>Idade, peso, intervalo e limite anual.</li></ul></article>
+        <article class="historia"><span class="rotulo">H2 · Coleta</span><h3>Doação vira bolsa</h3><blockquote>Como técnico de coleta, quero registrar a doação para que a bolsa entre no estoque com a validade certa.</blockquote><ul class="lista-regras"><li><span class="cod">T2.1–T2.4</span>35 dias, só apto doa, persistência.</li></ul></article>
+        <article class="historia"><span class="rotulo">H3 · Transfusão</span><h3>Só sangue compatível</h3><blockquote>Como médico, quero receber bolsas compatíveis para transfundir sem risco de reação hemolítica.</blockquote><ul class="lista-regras"><li><span class="cod">T3.1–T3.5</span>ABO/Rh, sem vencidas, isogrupo + FEFO.</li></ul></article>
+      </div>
+      <div class="release2">
+        <span class="rotulo">Release 2 · uma regra por integrante, red → green</span>
+        <div class="grade" id="release2"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- esteira -->
+  <section class="bloco" id="esteira">
+    <div class="wrap">
+      <div class="titulo-bloco"><div><span class="rotulo">Entrega contínua</span><h2>Como esta versão chegou aqui</h2><p>Nada vai para a main sem pull request, teste verde e aprovação de um colega. O merge publica sozinho.</p></div></div>
+      <div class="esteira">
+        <div class="passo"><div class="num">01 · pull request</div><h3>GitHub Flow</h3><p>Branch curta; main protegida com 1 aprovação e sem bypass.</p></div>
+        <div class="passo"><div class="num">02 · testes</div><h3>mvn verify</h3><p>Unitário, integração com PostgreSQL real (Testcontainers) e aceitação em Gherkin.</p></div>
+        <div class="passo"><div class="num">03 · imagem</div><h3>Docker multi-stage</h3><p>Publicada no GHCR com o SHA do commit.</p></div>
+        <div class="passo"><div class="num">04 · deploy</div><h3>Render</h3><p>Deploy hook + conferência da versão no ar. Rollback pelo SHA anterior.</p></div>
+      </div>
+      <div class="links-esteira">
+        <a class="btn" href="https://github.com/egs3-coder/SO" target="_blank" rel="noopener">Repositório</a>
+        <a class="btn" href="https://github.com/egs3-coder/SO/actions" target="_blank" rel="noopener">Execuções</a>
+        <a class="btn" href="https://github.com/egs3-coder/SO/pulls?q=is%3Apr+is%3Amerged" target="_blank" rel="noopener">Pull requests</a>
+        <a class="btn" href="/api/info" target="_blank">/api/info</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- equipe -->
+  <section class="bloco" id="equipe" style="padding-top:20px">
+    <div class="wrap">
+      <div class="titulo-bloco"><div><span class="rotulo">Equipe</span><h2>Quem fez</h2></div></div>
+      <div class="equipe" id="gradeEquipe"></div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Hemocentro · Projeto Integrador · Infraestrutura de Software 2026.2</span>
+    <span class="paleta"><span><i style="background:#ff2d55;box-shadow:0 0 8px #ff2d55"></i>#ff2d55</span><span><i style="background:#0b0e17;border:1px solid #2a3145"></i>#0b0e17</span></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  const TIPOS = [["O-",[]],["O+",["D"]],["A-",["A"]],["A+",["A","D"]],["B-",["B"]],["B+",["B","D"]],["AB-",["A","B"]],["AB+",["A","B","D"]]];
+  const ANT = Object.fromEntries(TIPOS);
+  const compativel = (d, r) => ANT[d].every(a => ANT[r].includes(a));
+  const MINIMO = t => t.startsWith("O") ? 5 : 3;
+  const REPO = "https://github.com/egs3-coder/SO";
+  const $ = (s, el = document) => el.querySelector(s);
+  const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+  const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+  const dataBR = iso => iso ? String(iso).split("-").reverse().join("/") : "";
+  const estado = { estoque: null, criticos: [], recentes: [] };
+
+  async function api(caminho, opcoes = {}) {
+    const r = await fetch(caminho, { headers: { "Content-Type": "application/json", "Accept": "application/json" }, ...opcoes });
+    let corpo = null;
+    try { corpo = await r.json(); } catch (_) {}
+    return { ok: r.ok, status: r.status, corpo };
+  }
+  const seguro = p => p.catch(() => ({ ok: false }));
+
+  /* ---------- etapas da jornada ---------- */
+  const ETAPAS = {
+    captar: ["01", "Captar", "cadastro"],
+    triar: ["02", "Triar", "H1 · triagem"],
+    coletar: ["03", "Coletar", "H2 · doação"],
+    armazenar: ["04", "Armazenar", "estoque · T4.1"],
+    distribuir: ["05", "Distribuir", "H3 · transfusão"]
+  };
+  const ORDEM = Object.keys(ETAPAS);
+  let atual = "captar";
+  function abrir(et, rolar) {
+    atual = et;
+    $$(".etapa").forEach(b => b.setAttribute("aria-selected", b.dataset.et === et));
+    $$(".quadro").forEach(q => q.classList.toggle("ativo", q.id === "q-" + et));
+    const [n, t, h] = ETAPAS[et];
+    $("#cabNum").textContent = "Etapa " + n; $("#cabTitulo").textContent = t; $("#cabHist").textContent = h;
+    if (rolar) $("#operacao").scrollIntoView({ behavior: "smooth" });
+  }
+  $$(".etapa").forEach(b => b.addEventListener("click", () => abrir(b.dataset.et, true)));
+  $("#ant").addEventListener("click", () => abrir(ORDEM[(ORDEM.indexOf(atual) + 4) % 5]));
+  $("#prox").addEventListener("click", () => abrir(ORDEM[(ORDEM.indexOf(atual) + 1) % 5]));
+
+  $$(".sel-tipo").forEach(sel => TIPOS.forEach(([t]) => sel.add(new Option(t, t))));
+  $("#receptor").value = "A+";
+
+  /* ---------- status ---------- */
+  async function status() {
+    try {
+      const h = await api("/actuator/health");
+      const up = h.ok && h.corpo && h.corpo.status === "UP";
+      $("#status").className = "chip-status " + (up ? "up" : "down");
+      $("#statusTxt").textContent = up ? "online" : "instável";
+    } catch (_) { $("#status").className = "chip-status down"; $("#statusTxt").textContent = "offline"; }
+    try {
+      const i = await api("/api/info");
+      if (i.ok && i.corpo) {
+        const v = String(i.corpo.versao || "local"), a = $("#versao");
+        a.textContent = v === "local" ? "local" : v.slice(0, 7);
+        if (v !== "local") a.href = `${REPO}/commit/${encodeURIComponent(v)}`;
+      }
+    } catch (_) {}
+  }
+
+  /* ---------- dados ---------- */
+  async function carregar() {
+    $$("[data-atualizar]").forEach(b => b.disabled = true);
+    try {
+      const [e, c, r, d] = await Promise.all([seguro(api("/estoque")), seguro(api("/estoque/criticos")), seguro(api("/api/resumo")), seguro(api("/api/doadores-recentes"))]);
+      estado.estoque = e.ok ? e.corpo : null;
+      estado.criticos = c.ok && Array.isArray(c.corpo) ? c.corpo : (estado.estoque ? TIPOS.map(([t]) => t).filter(t => (estado.estoque[t] || 0) < MINIMO(t)) : []);
+      if (d.ok && Array.isArray(d.corpo)) estado.recentes = d.corpo;
+      const res = r.ok ? r.corpo : null;
+      const total = estado.estoque ? Object.values(estado.estoque).reduce((a, b) => a + b, 0) : null;
+      $("#dCaptar").innerHTML = `<i></i>${res ? res.doadores : "–"} doadores`;
+      $("#dColetar").innerHTML = `<i></i>${res ? res.doacoes : "–"} doações`;
+      const dA = $("#dArmazenar");
+      dA.className = "dado" + (estado.criticos.length ? " alerta" : (estado.estoque ? " ok" : ""));
+      dA.innerHTML = `<i></i>${total ?? "–"} bolsas${estado.criticos.length ? " · " + estado.criticos.length + " alerta" + (estado.criticos.length > 1 ? "s" : "") : ""}`;
+      $("#pBolsas").textContent = total ?? "–";
+      $("#pAlertas").textContent = estado.estoque ? estado.criticos.length : "–";
+      $("#pDoacoes").textContent = res ? res.doacoes : "–";
+      desenharEstoque(); desenharRecentes(); desenharCompat();
+    } finally { $$("[data-atualizar]").forEach(b => b.disabled = false); }
+  }
+  $$("[data-atualizar]").forEach(b => b.addEventListener("click", carregar));
+
+  function desenharEstoque() {
+    const est = estado.estoque;
+    if (!est) { $("#tipos").innerHTML = `<p class="vazio">Não foi possível carregar o estoque. O servidor gratuito pode estar acordando — clique em Atualizar em alguns segundos.</p>`; return; }
+    const crit = new Set(estado.criticos);
+    $("#tipos").innerHTML = TIPOS.map(([t]) => {
+      const q = est[t] || 0, min = MINIMO(t), c = crit.has(t);
+      return `<article class="tipo ${c ? "critico" : ""}"><span class="selo">${c ? "alerta" : "ok"}</span><div class="g">${t}</div><div class="q">${q}</div><div class="s">bolsa${q === 1 ? "" : "s"} · mínimo ${min}</div><div class="trilho"><i style="width:${Math.min(100, Math.round(q / (min * 2) * 100))}%"></i></div></article>`;
+    }).join("");
+  }
+
+  function desenharRecentes() {
+    const l = estado.recentes;
+    $("#recentes").innerHTML = !l.length ? `<p class="vazio">Nenhum doador cadastrado ainda. Use o formulário ao lado.</p>` :
+      `<table class="tabela"><thead><tr><th>#</th><th>Nome</th><th>Tipo</th><th></th></tr></thead><tbody>${l.map(d =>
+        `<tr><td class="mono">${d.id}</td><td>${esc(d.nome)}</td><td><span class="tipo-tag">${esc(d.tipoSanguineo)}</span></td>
+        <td style="white-space:nowrap;text-align:right"><button class="btn peq" type="button" data-acao="triar" data-id="${d.id}">Triar</button> <button class="btn peq" type="button" data-acao="coletar" data-id="${d.id}">Coletar</button></td></tr>`).join("")}</tbody></table>`;
+  }
+  $("#recentes").addEventListener("click", e => {
+    const b = e.target.closest("button[data-acao]"); if (!b) return;
+    $$(".id-doador").forEach(i => i.value = b.dataset.id);
+    abrir(b.dataset.acao);
+    if (b.dataset.acao === "triar") $("#fTriagem").requestSubmit();
+  });
+
+  function desenharCompat() {
+    const r = $("#receptor").value;
+    const doadores = TIPOS.map(([t]) => t).filter(t => compativel(t, r));
+    $("#compTotal").textContent = estado.estoque ? doadores.reduce((s, t) => s + (estado.estoque[t] || 0), 0) : "–";
+    $("#compTxt").textContent = `bolsas compatíveis com ${r} em estoque (de ${doadores.join(", ")})`;
+    const col = TIPOS.findIndex(([t]) => t === r);
+    $$("#matriz tbody tr").forEach(tr => $$("td", tr).forEach((td, i) => td.classList.toggle("foco", i === col)));
+  }
+  $("#receptor").addEventListener("change", desenharCompat);
+
+  /* ---------- formulários ---------- */
+  function mostrar(form, tipo, html) { const box = $(".resultado", form); box.className = "resultado mostrar " + tipo; box.innerHTML = html; }
+  function erroHtml(res, titulo) {
+    const c = res.corpo || {};
+    let h = `<strong class="t">${esc(titulo)}</strong>${esc(c.detail || c.title || ("Erro " + res.status))}`;
+    if (Array.isArray(c.motivos) && c.motivos.length) h += `<ul>${c.motivos.map(m => `<li>${esc(m)}</li>`).join("")}</ul>`;
+    return h;
+  }
+  async function ocupado(form, fn) {
+    const btn = $('button[type="submit"]', form); btn.disabled = true;
+    try { await fn(); }
+    catch (_) { mostrar(form, "erro", `<strong class="t">Sem conexão com a API</strong>O servidor gratuito pode estar acordando. Tente de novo em alguns segundos.`); }
+    finally { btn.disabled = false; }
+  }
+
+  function cpfValido() {
+    const n = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10));
+    if (n.every(x => x === n[0])) n[8] = (n[0] + 1) % 10;
+    const dv = b => { const s = b.reduce((a, x, i) => a + x * (b.length + 1 - i), 0); const r = (s * 10) % 11; return r === 10 ? 0 : r; };
+    n.push(dv(n)); n.push(dv(n));
+    return n.join("");
+  }
+  $("#btnExemplo").addEventListener("click", () => {
+    const f = $("#fCadastro");
+    const nomes = ["Maria Silva", "João Souza", "Ana Lima", "Carlos Rocha", "Beatriz Alves", "Rafael Costa"];
+    f.nome.value = nomes[Math.floor(Math.random() * nomes.length)];
+    f.cpf.value = cpfValido(); f.dataNascimento.value = "1995-03-10"; f.sexo.value = "FEMININO"; f.pesoKg.value = "62.5";
+    f.tipoSanguineo.value = TIPOS[Math.floor(Math.random() * 8)][0];
+  });
+
+  $("#fCadastro").addEventListener("submit", ev => {
+    ev.preventDefault(); const f = ev.currentTarget;
+    ocupado(f, async () => {
+      const corpo = { nome: f.nome.value.trim(), cpf: f.cpf.value.trim(), dataNascimento: f.dataNascimento.value, sexo: f.sexo.value,
+        pesoKg: Number(f.pesoKg.value), tipoSanguineo: f.tipoSanguineo.value, consentimentoResponsavel: f.consentimentoResponsavel.checked };
+      const r = await api("/doadores", { method: "POST", body: JSON.stringify(corpo) });
+      if (r.ok) {
+        const d = r.corpo;
+        $$(".id-doador").forEach(i => i.value = d.id);
+        mostrar(f, "sucesso", `<strong class="t">Doador #${d.id} cadastrado</strong>${esc(d.nome)} · ${esc(d.tipoSanguineo)} · ${d.pesoKg} kg. <a href="#operacao" data-ir="triar">Seguir para a triagem →</a>`);
+        carregar();
+      } else mostrar(f, "erro", erroHtml(r, r.status === 409 ? "CPF já cadastrado" : "Não foi possível cadastrar"));
+    });
+  });
+  document.addEventListener("click", e => { const a = e.target.closest("[data-ir]"); if (a) { e.preventDefault(); abrir(a.dataset.ir, true); } });
+
+  $("#fTriagem").addEventListener("submit", ev => {
+    ev.preventDefault(); const f = ev.currentTarget, id = $("#idTriagem").value;
+    ocupado(f, async () => {
+      const r = await api(`/doadores/${encodeURIComponent(id)}/triagem`);
+      if (!r.ok) return mostrar(f, "erro", erroHtml(r, "Doador não encontrado"));
+      if (r.corpo.apto) mostrar(f, "sucesso", `<strong class="t">Apto para doar</strong>O doador #${esc(id)} passou em todas as regras. <a href="#operacao" data-ir="coletar">Seguir para a coleta →</a>`);
+      else mostrar(f, "erro", `<strong class="t">Inapto para doar</strong>Motivos:<ul>${r.corpo.motivos.map(m => `<li>${esc(m)}</li>`).join("")}</ul>`);
+    });
+  });
+
+  $("#fDoacao").addEventListener("submit", ev => {
+    ev.preventDefault(); const f = ev.currentTarget, id = $("#idDoacao").value;
+    ocupado(f, async () => {
+      const r = await api(`/doadores/${encodeURIComponent(id)}/doacoes`, { method: "POST" });
+      if (r.ok) {
+        const d = r.corpo;
+        mostrar(f, "sucesso", `<strong class="t">Doação registrada</strong>Bolsa #${d.bolsaId} · <span class="tipo-tag">${esc(d.tipoSanguineo)}</span> · coletada em ${dataBR(d.dataColeta)} · válida até <b>${dataBR(d.validade)}</b>. <a href="#operacao" data-ir="armazenar">Ver no estoque →</a>`);
+        carregar();
+      } else mostrar(f, "erro", erroHtml(r, r.status === 422 ? "Doação recusada pela triagem" : "Não foi possível registrar"));
+    });
+  });
+
+  $("#fTransfusao").addEventListener("submit", ev => {
+    ev.preventDefault(); const f = ev.currentTarget;
+    ocupado(f, async () => {
+      const r = await api("/transfusoes", { method: "POST", body: JSON.stringify({ tipoReceptor: $("#receptor").value, quantidade: Number($("#qtd").value) }) });
+      if (r.ok) {
+        const b = r.corpo.bolsas || [];
+        mostrar(f, "sucesso", `<strong class="t">${b.length} bolsa${b.length === 1 ? "" : "s"} entregue${b.length === 1 ? "" : "s"} para ${esc(r.corpo.tipoReceptor)}</strong><div class="chips">${b.map(x => `<span class="chip">#${x.id} · ${esc(x.tipoSanguineo)} · vence ${dataBR(x.validade)}</span>`).join("")}</div>`);
+        carregar();
+      } else mostrar(f, "erro", erroHtml(r, r.status === 409 ? "Estoque insuficiente" : "Não foi possível atender"));
+    });
+  });
+
+  /* ---------- matriz, release 2, equipe ---------- */
+  (() => {
+    let h = `<caption class="sr">Compatibilidade de hemácias</caption><thead><tr><th scope="col"><span class="sr">Doador/receptor</span></th>${TIPOS.map(([r]) => `<th scope="col">${r}</th>`).join("")}</tr></thead><tbody>`;
+    TIPOS.forEach(([d]) => { h += `<tr><th scope="row">${d}</th>${TIPOS.map(([r]) => { const ok = compativel(d, r); return `<td class="${ok ? "sim" : "nao"}" title="${d} → ${r}: ${ok ? "compatível" : "incompatível"}">${ok ? "●" : "·"}</td>`; }).join("")}</tr>`; });
+    $("#matriz").innerHTML = h + "</tbody>";
+  })();
+
+  const EQUIPE = [
+    ["ewerton", "Ewerton Guilherme da Silva", "Product Owner", "T4.1", "Alerta de estoque crítico", 3],
+    ["pablo", "Pablo Arthur Eustáquio de Lima", "Backend", "T1.6", "Tatuagem recente", 16],
+    ["joao", "João Ricardo Alves de Brito", "Backend", "T1.7", "Hemoglobina mínima", 10],
+    ["lucas", "Lucas Aprigio dos Santos", "Backend", "T4.2", "Descarte de vencidas", 12],
+    ["saulo", "Saulo Eduardo Almeida dos Santos", "Backend", "T2.5", "CPF válido", 11],
+    ["thiago", "Thiago Cardozo da Conceição", "Frontend / UI", "T1.8", "Frequência cardíaca", 17],
+    ["eloi", "Eloi de Lima Sousa", "Frontend / UI", "T1.9", "Pressão arterial", 14]
+  ];
+  $("#release2").innerHTML = EQUIPE.map(([, n, , t, r, pr]) =>
+    `<div class="item"><span class="mono" style="color:var(--neon)">${t}</span> · <a href="${REPO}/pull/${pr}" target="_blank" rel="noopener">PR #${pr}</a><b>${esc(r)}</b>${esc(n.split(" ")[0])}</div>`).join("");
+  $("#gradeEquipe").innerHTML = EQUIPE.map(([f, n, p, t, , pr]) =>
+    `<div class="pessoa"><img src="https://raw.githubusercontent.com/egs3-coder/SO/main/docs/equipe/${f}.jpg" alt="${esc(n)}" loading="lazy" onerror="this.style.visibility='hidden'"><b>${esc(n)}</b><span>${esc(p)}</span><span class="mono">${t}</span><a href="${REPO}/pull/${pr}" target="_blank" rel="noopener">PR #${pr}</a></div>`).join("");
+
+  abrir("captar");
+  status();
+  carregar();
+})();
+</script>
+</body>
+</html>
