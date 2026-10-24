@@ -345,6 +345,37 @@ Prints de cada caso estão em [`docs/evidencias/`](docs/evidencias/), com índic
 
 ## 6. E3 · Pipeline, deploy e rollback
 
+### Histórias implementadas
+
+```text
+┌────────────────────────────────────────────────────────────────────────┐
+│ [POST-IT] HISTÓRIA H4 · EXPURGO E DESCARTE DE BOLSAS VENCIDAS          │
+├────────────────────────────────────────────────────────────────────────┤
+│ Como: Farmacêutico / Responsável pelo Estoque                          │
+│ Quero: Executar o descarte automatizado de bolsas vencidas             │
+│ Para: Garantir que nenhuma bolsa fora da validade permaneça no estoque │
+│       ativo ou possa ser alocada por engano para transfusão            │
+│                                                                        │
+│ Critérios de Aceitação:                                                │
+│ • Endpoint dedicado para listar e marcar bolsas como descartadas       │
+│ • Aplica a regra de expurgo mantendo histórico de auditoria            │
+│ • Bolsas vencidas deixam de contar no cálculo de estoque utilizável    │
+└────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────────────────────────────────────────────────────────┐
+│ [POST-IT] HISTÓRIA H5 · TRIAGEM CLÍNICA INTEGRADA E COMPLETA          │
+├────────────────────────────────────────────────────────────────────────┤
+│ Como: Triador / Atendente do Hemocentro                                │
+│ Quero: Avaliar os sinais vitais e histórico recente do candidato       │
+│ Para: Impedir a coleta de doadores com parâmetros clínicos alterados   │
+│       e resguardar a integridade física do doador                      │
+│                                                                        │
+│ Critérios de Aceitação:                                                │
+│ • Validação conjunta de hemoglobina, pulso, pressão arterial e tatuagem│
+│ • Retorno com todos os motivos detalhados de inaptidão caso reprovado  │
+│ • Bloqueio de prosseguimento para coleta se houver qualquer pendência  │
+└────────────────────────────────────────────────────────────────────────┘
+
 Arquivo: [`.github/workflows/ci-cd.yml`](.github/workflows/ci-cd.yml).
 
 ```
